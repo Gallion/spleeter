@@ -16,6 +16,7 @@
 
 import atexit
 import os
+import platform
 from multiprocessing import Pool
 from os.path import basename, dirname, join, splitext
 from typing import Dict, Generator, Optional
@@ -122,7 +123,11 @@ class Separator(object):
         self._features = None
         self._session = None
         if multiprocess:
-            self._pool = Pool()
+            if platform.system() == "Windows" and os.cpu_count() > 61:
+                num_threads = 61
+            else:
+                num_threads = None
+            self._pool = Pool(num_threads)
             atexit.register(self._pool.close)
         else:
             self._pool = None
